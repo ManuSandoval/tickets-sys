@@ -24,5 +24,5 @@ socket.emit(
 );
 //listening for information "sendMessage"
 socket.on("sendMessage", function (data) {
-  console.log(`Server: ${data}`);
+  console.log(`Server:`, data);
 });

@@ -1,6 +1,6 @@
 const { io } = require("../server");
 //to know when a client is connected to the server
-io.on("connect", (client) => {
+io.on("connection", (client) => {
   console.log("User connected");
 
   client.emit("sendMessage", {
@@ -13,10 +13,10 @@ io.on("connect", (client) => {
   });
 
   client.on("sendMessage", (data, cb) => {
+    console.log(data);
+    client.broadcast.emit("sendMessage", data);
     /* data.name
       ? cb({ name: "server", message: "Everithing is OK" })
       : cb({ name: "server", message: "Something is wrong" }); */
-    console.log(data);
-    client.broadcast.emit("sendMessage", data);
   });
 });
