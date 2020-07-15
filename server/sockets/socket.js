@@ -1,22 +1,29 @@
 const { io } = require("../server");
+
+const { TicketControl } = require("../classes/Ticket");
+let ticketControl = new TicketControl();
+
 //to know when a client is connected to the server
 io.on("connection", (client) => {
-  console.log("User connected");
-
-  client.emit("sendMessage", {
-    user: "Admin",
-    message: "Welcome!",
+  client.on("nextTicket", (cb) => {
+    let nextTicket = ticketControl.nextTicket();
+    cb(nextTicket);
   });
 
-  client.on("disconnect", () => {
-    console.log("User disconnected");
+  client.emit("currentTicket", { ticket: ticketControl.getCurrentTicket() });
+
+  client.emit("last4Tickets", {
+    last4Tickets: ticketControl.getLast4Tickets(),
   });
 
-  client.on("sendMessage", (data, cb) => {
-    console.log(data);
-    client.broadcast.emit("sendMessage", data);
-    /* data.name
-      ? cb({ name: "server", message: "Everithing is OK" })
-      : cb({ name: "server", message: "Something is wrong" }); */
+  client.on("attendTicket", (data, cb) => {
+    if (!data.box)
+      return cb({ error: true, message: "The box number is necessary" });
+    let attendingTicket = ticketControl.attendTicket(data.box);
+    cb(attendingTicket);
+    client.broadcast.emit("last4Tickets", {
+      last4Tickets: ticketControl.getLast4Tickets(),
+    });
+    //update the last4Tickets for all clients
   });
 });
